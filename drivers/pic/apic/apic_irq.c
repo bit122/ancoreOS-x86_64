@@ -70,7 +70,7 @@ void APIC_IRQ_Handler(Registers_t* regs) {
         // call the handler for the specific interrupt
         g_APICIRQHandler_ts[irq](regs);
     } else {
-        LOG_WARN("APIC_IRQ_Handler: Unhandled APIC IRQ %d  ISR=%x  IRR=%x...\n", irq, apic_isr, apic_irr);
+        LOG_WARN("Unhandled APIC IRQ %d  ISR=%x  IRR=%x...\n", irq, apic_isr, apic_irr);
         SERIAL(Warn, APIC_IRQ_Handler, "Unhandled APIC IRQ %d  ISR=%x  IRR=%x...\n", irq, apic_isr, apic_irr);
     }
 
@@ -87,7 +87,7 @@ void APIC_IRQ_Initialize() {
         ISR_RegisterHandler(APIC_REMAP_OFFSET + i, APIC_IRQ_Handler);
     }
 
-    LOG_INFO("APIC_IRQ_Initialize: APIC IRQ initialized successfully\n");
+    LOG_OK("APIC IRQ initialized successfully\n");
     SERIAL(Info, APIC_IRQ_Initialize, "APIC IRQ initialized successfully\n");
 }
 

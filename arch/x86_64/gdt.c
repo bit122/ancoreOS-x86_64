@@ -40,9 +40,31 @@
 // https://github.com/nanobyte-dev/nanobyte_os/blob/master/LICENSE
 
 #include "arch/x86_64/includes/gdt.h"
+#include "arch/x86_64/includes/idt.h"
 #include <stdint.h>
 #include "arch/x86_64/includes/io.h"
 #include "tools/includes/log-info.h"
+#include <string.h>
+
+extern void syscall_handler_asm(void);
+
+struct __attribute__((packed)) tss_entry {
+    uint32_t reserved0;
+    uint64_t rsp0;
+    uint64_t rsp1;
+    uint64_t rsp2;
+    uint64_t reserved1;
+    uint64_t ist1;
+    uint64_t ist2;
+    uint64_t ist3; 
+    uint64_t ist4; 
+    uint64_t ist5; 
+    uint64_t ist6; 
+    uint64_t ist7;
+    uint64_t reserved2;
+    uint16_t reserved3;
+    uint16_t iopb_offset;
+} tss;
 
 
 
@@ -98,6 +120,7 @@ typedef enum {
 #define GDT_FLAGS_LIMIT_HI(limit, flags)    (((limit >> 16) & 0xF) | (flags & 0xF0))
 #define GDT_BASE_HIGH(base)                 ((base >> 24) & 0xFF)
 
+
 #define GDT_ENTRY(base, limit, access, flags) {                     \
     GDT_LIMIT_LOW(limit),                                           \
     GDT_BASE_LOW(base),                                             \
@@ -106,7 +129,6 @@ typedef enum {
     GDT_FLAGS_LIMIT_HI(limit, flags),                               \
     GDT_BASE_HIGH(base)                                             \
 }
-
 
 GDTEntry_t g_GDT[] = {
     // NULL descriptor
@@ -147,7 +169,21 @@ GDTEntry_t g_GDT[] = {
         GDT_ACCESS_DATA_SEGMENT | GDT_ACCESS_DATA_WRITEABLE,
         GDT_FLAG_GRANULARITY_4K
     ),
-};
+
+    GDT_ENTRY(
+    0,  
+    sizeof(tss) - 1,
+    0x89,  
+    0x00   
+),
+
+GDT_ENTRY(0, 0, 0, 0),
+
+//it was that fkn easy???
+
+};  
+
+
 
 
 GDTDescriptor_t g_GDTDescriptor = { sizeof(g_GDT) - 1, g_GDT};
@@ -171,20 +207,36 @@ void GDT_Load(GDTDescriptor_t *descriptor, uint16_t cs, uint16_t ds)
     );
 }
 
-void GDT_Initialize() {
-    GDT_Load(&g_GDTDescriptor, GDT_CODE_SEGMENT, GDT_DATA_SEGMENT);
+void TSS_Initialize() {
+    memset(&tss, 0, sizeof(tss));
+    tss.iopb_offset = sizeof(tss); //note to future self: this WILL need to point to a kernel stack 
 
+    //get tss addr.
+    uint64_t tss_base = (uint64_t)&tss;
+    
+    g_GDT[5].BaseLow = tss_base & 0xFFFF;
+    g_GDT[5].BaseMiddle = (tss_base >> 16) & 0xFF;  // set the lower 32 bits of tss base in the first tss entry (index 5)
+    g_GDT[5].BaseHigh = (tss_base >> 24) & 0xFF;
+    uint32_t *tss_upper = (uint32_t *)&g_GDT[6];
+    *tss_upper = (tss_base >> 32) & 0xFFFFFFFF;  // set upper 32 bits in the second tss entry at an index of 6
+}
+
+
+void GDT_Initialize() {
+TSS_Initialize();
+    GDT_Load(&g_GDTDescriptor, GDT_CODE_SEGMENT, GDT_DATA_SEGMENT);
     uint16_t cs, ds;
     __asm__ volatile ("mov %%cs, %0" : "=r"(cs));
     __asm__ volatile ("mov %%ds, %0" : "=r"(ds));
+    __asm__ volatile("ltr %0" :: "r"((uint16_t)0x28)); 
 
     if (cs == GDT_CODE_SEGMENT && ds == GDT_DATA_SEGMENT) {
-        LOG_INFO("GDT initialized successfully\n");
+        LOG_OK("GDT initialized successfully\n");
         SERIAL(Info, GDT_Initialize, "GDT initialized successfully\n");
     } else {
         LOG_FATAL("Failed to initialize GDT, halting...\n");
         SERIAL(Info, GDT_Initialize, "Failed to initalize GDT, halting...\n");
         halt();
-        
     }
 }
+

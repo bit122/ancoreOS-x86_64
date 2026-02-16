@@ -37,6 +37,8 @@
 */
 #ifndef GDT_H
 #define GDT_H
+#define GDT_FLAGS_LIMIT_HI(limit, flags) \
+    (((limit >> 16) & 0xF) | ((flags) & 0xF0))
 
 #define GDT_CODE_SEGMENT 0x08
 #define GDT_DATA_SEGMENT 0x10

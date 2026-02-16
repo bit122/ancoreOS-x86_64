@@ -47,14 +47,14 @@ Version: dev-prototype
 
 ------------------------------------------------------------------------------------------------------------------
 
-Version: 0.10-pre 
+Version: 0.10.05 
 
 CHANGES since version dev-prototype:
 
 - reorganized a LOT of things, mainly because i took inspiration from early linux versions, plus it looks better
-- removed most of the flashy colors from the kernelspace shell - i do NOT need a headache at three in the morning
+- removed most of the flashy colors from the kernelspace shell - i do NOT need a headache at three in the morning (i kept some)
 - added more klib stuff, mainly taken from early linux versions for simplicity and whatnot
-- added more serial to drivers for verbose debugging, and added time-since-boot to the kernelspace shell as both a cmd and a timer to logs
+- added more serial to drivers for verbose debugging, and added time-since-boot to the kernelspace shell as both a command and a timer to the status flags
 - fixed calibration flaws in time/tsc implentations
 - minor cleanups and bugfixes
 - modified the LOG_INFO, LOG_WARN, and LOG_FATAL in log-info.c/.h to automatically print function, file, and line (yay)
@@ -63,3 +63,16 @@ CHANGES since version dev-prototype:
 - added actual syscalls to the kernel (wohoo!) after much trial and error
 - removed the malloc tests in the kernel, since they were a little impractical in my opinion
 - tweaked the ring 0, 1, 2, and 3 seperation in the GDT, as it was a little off
+
+------------------------------------------------------------------------------------------------------------------
+
+Version 0.10.05:
+
+
+CHANGES since version 0.10.05:
+
+- added working TSS implementation to the GDT (atleast i think it works)
+- added LOG_OK, and added colors to them for verbose kernelspace logging purposes
+- removed prior syscall implementation as it kind of sucked and did not do its job correctly
+- moved storage/ from kernel/ to drivers/
+- small bugfixes and version changes

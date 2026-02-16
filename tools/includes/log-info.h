@@ -51,6 +51,7 @@
 
 
 typedef enum result_t {
+    Ok,
     Info,      // no prefix
     Warn,      // WARN prefix
     Fatal,     // FATAL prefix
@@ -87,6 +88,8 @@ extern const char* result_str[ResultCount];
 
 static inline const char* get_status_color(result_t status) {
     switch (status) {
+        case Ok:    return COLOR_GREEN;
+        case Info:  return COLOR_BOLD;
         case Warn:  return COLOR_YELLOW;
         case Fatal: return COLOR_RED;
         default:    return "";
@@ -95,6 +98,7 @@ static inline const char* get_status_color(result_t status) {
 
 void log_to_terminal(result_t status, const char *from, const char *file, int line, const char *fmt, ...);
 
+#define LOG_OK(fmt, ...) log_to_terminal(Ok, __func__, __FILE__, __LINE__, fmt, ##__VA_ARGS__)
 #define LOG_INFO(fmt, ...)  log_to_terminal(Info, __func__, __FILE__, __LINE__, fmt, ##__VA_ARGS__)
 #define LOG_WARN(fmt, ...)  log_to_terminal(Warn, __func__, __FILE__, __LINE__, fmt, ##__VA_ARGS__)
 #define LOG_FATAL(fmt, ...) log_to_terminal(Fatal, __func__, __FILE__, __LINE__, fmt, ##__VA_ARGS__)

@@ -54,10 +54,11 @@
 #include "drivers/pic/includes/apic/apic_irq.h"
 #include "shell/includes/keyboard.h"
 #include "shell/includes/shell.h"
-#include "storage/includes/stinit.h"
+#include "drivers/storage/includes/stinit.h"
 #include "drivers/hci/includes/ehci.h"
 #include "drivers/pci/includes/pci.h"
 #include <assert.h>
+
 
 extern void syscall_init(void);
 
@@ -83,9 +84,63 @@ capture_boot_tsc();
     
 }
 
+        void vmm_test_mapping(void) {
+    uint64_t virt = 0x1000000000;  // random virtual address
+    uint64_t phys = 0x200000;      // random physical address
+
+
+    map_page(virt, phys, PTE_PRESENT | PTE_WRITABLE);
+
+    // verify that the mapping works by accessing the virtual address
+    uint64_t *ptr = (uint64_t *)virt;
+    *ptr = 0x1234567890ABCDEF;  
+
+    uint64_t value = *ptr;
+    if (value == 0x1234567890ABCDEF) {
+        LOG_OK("VMM test passed: Virtual address maps correctly!\n");
+        SERIAL(Info, kernel_main, "VMM test passed: Virtual address maps correctly!\n");
+        
+    } else {
+        LOG_FATAL("VMM test failed: Virtual address mapping is incorrect\n");
+        SERIAL(Fatal, kernel_main, "VMM test failed: Virtual address mapping is incorrect\n");
+        
+    }
+}
+
+void vmm_test_unmap(void) {
+    uint64_t virt = 0x1000000000;  // a virtual address to map
+    uint64_t phys = 0x200000;     
+
+    map_page(virt, phys, PTE_PRESENT | PTE_WRITABLE);
+
+    //write value
+    uint64_t *ptr = (uint64_t *)virt;
+    *ptr = 0x1234567890ABCDEF; 
+
+    //verifies the value
+    uint64_t value = *ptr; 
+    if (value == 0x1234567890ABCDEF) {
+        LOG_OK("VMM test passed: Virtual address mapped and accessed correctly\n");
+        SERIAL(Info, kernel_main, "VMM test passed: Virtual address maps and accessed correctly!\n");
+        
+    } else {
+        LOG_FATAL("VMM test failed: Virtual address access failed before unmap\n");
+        SERIAL(Fatal, kernel_main, "VMM test failed: Virtual address access failed before unmap\n");
+        
+    }
+
+unmap_page(virt);
+
+    //printf("Attempting to access unmapped page...\n");
+    //ptr = (uint64_t *)virt;
+    //*ptr = 0xDEADBEEF;  // this triggers a page fault. DO NOT UNCOMMENT THIS!!!!
+
+}
+
+
 void kernel_main(void) {
     struct limine_framebuffer *fb = fb_req.response->framebuffers[0];
-    
+    extern void enter_usermode(uint64_t entry, uint64_t stack, int argc, void* argv);
     global_flanterm = flanterm_fb_init(
         NULL,                    // malloc function
         NULL,                    // free function
@@ -119,7 +174,7 @@ void kernel_main(void) {
     printf("%sWelcome to the%s %sVNiX Operating System!%s\n", COLOR_BOLD, COLOR_RESET,  COLOR_BOLD COLOR_CYAN, COLOR_RESET);
     printf("--------Kernel Specifications--------\n");
     printf("Kernel revision: 3A\n");
-    printf("OS Version: 0.10-pre\n");
+    printf("OS Version: 0.10.05\n");
     printf("Verbose kernel logging: TRUE\n");
     printf("Copyright (c) 2026 Aspen Software Foundation\n");
     printf("-------------------------------------\n");
@@ -135,65 +190,8 @@ void kernel_main(void) {
     storage_init();
     enable_interrupts();
     start_pci_enumeration();
-    syscall_init();
-
-        void vmm_test_mapping(void) {
-    uint64_t virt = 0x1000000000;  // random virtual address
-    uint64_t phys = 0x200000;      // random physical address
-
-
-    map_page(virt, phys, PTE_PRESENT | PTE_WRITABLE);
-
-    // verify that the mapping works by accessing the virtual address
-    uint64_t *ptr = (uint64_t *)virt;
-    *ptr = 0x1234567890ABCDEF;  
-
-    uint64_t value = *ptr;
-    if (value == 0x1234567890ABCDEF) {
-        LOG_INFO("VMM test passed: Virtual address maps correctly!\n");
-        SERIAL(Info, kernel_main, "VMM test passed: Virtual address maps correctly!\n");
-        
-    } else {
-        LOG_FATAL("VMM test failed: Virtual address mapping is incorrect\n");
-        SERIAL(Fatal, kernel_main, "VMM test failed: Virtual address mapping is incorrect\n");
-        
-    }
-}
-
-void vmm_test_unmap(void) {
-    uint64_t virt = 0x1000000000;  // a virtual address to map
-    uint64_t phys = 0x200000;     
-
-    map_page(virt, phys, PTE_PRESENT | PTE_WRITABLE);
-
-    //write value
-    uint64_t *ptr = (uint64_t *)virt;
-    *ptr = 0x1234567890ABCDEF; 
-
-    //verifies the value
-    uint64_t value = *ptr; 
-    if (value == 0x1234567890ABCDEF) {
-        LOG_INFO("VMM test passed: Virtual address mapped and accessed correctly\n");
-        SERIAL(Info, kernel_main, "VMM test passed: Virtual address maps and accessed correctly!\n");
-        
-    } else {
-        LOG_FATAL("VMM test failed: Virtual address access failed before unmap\n");
-        SERIAL(Fatal, kernel_main, "VMM test failed: Virtual address access failed before unmap\n");
-        
-    }
-
-unmap_page(virt);
-
-    //printf("Attempting to access unmapped page...\n");
-    //ptr = (uint64_t *)virt;
-    //*ptr = 0xDEADBEEF;  // this triggers a page fault. DO NOT UNCOMMENT THIS!!!!
-
-}
-
-vmm_test_mapping();
-vmm_test_unmap();
-
     shell_main();
+
 
     while (1);
 }

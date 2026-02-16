@@ -89,22 +89,20 @@ build/kernel.elf:
 	gcc -c drivers/pic/pic.c -o build/pic.o $(CFLAGS)
 	gcc -c drivers/pic/pic_irq.c -o build/pic_irq.o $(CFLAGS)
 	gcc -c kernel/shell/keyboard.c -o build/keyboard.o $(CFLAGS)
-	gcc -c kernel/storage/storage.c -o build/storage.o $(CFLAGS)
-	gcc -c kernel/storage/sata.c -o build/sata.o $(CFLAGS)
+	gcc -c  drivers/storage/storage.c -o build/storage.o $(CFLAGS)
+	gcc -c  drivers/storage/sata.c -o build/sata.o $(CFLAGS)
 	gcc -c drivers/pic/apic/apic.c -o build/apic.o $(CFLAGS)
 	gcc -c drivers/pic/apic/apic_irq.c -o build/apic_irq.o $(CFLAGS)
-	gcc -c kernel/storage/ata.c -o build/ata.o $(CFLAGS)
-	gcc -c kernel/storage/stinit.c -o build/stinit.o $(CFLAGS)
-	gcc -c kernel/storage/atapi.c -o build/atapi.o $(CFLAGS)
+	gcc -c  drivers/storage/ata.c -o build/ata.o $(CFLAGS)
+	gcc -c  drivers/storage/stinit.c -o build/stinit.o $(CFLAGS)
+	gcc -c  drivers/storage/atapi.c -o build/atapi.o $(CFLAGS)
 	gcc -c kernel/time/time.c -o build/time.o $(CFLAGS)
 	gcc -c kernel/shell/shell.c -o build/shell.o $(CFLAGS)
 	gcc -c tools/pit.c -o build/pit.o $(CFLAGS)
 	gcc -c kernel/time/tsc.c -o build/tsc.o $(CFLAGS)
-	gcc -c kernel/system/syscalls.c -o build/syscalls.o $(CFLAGS)
 	gcc -c drivers/hci/ehci.c -o build/ehci.o $(CFLAGS)
 	gcc -c drivers/pci/pci.c -o build/pci.o $(CFLAGS)
-	nasm -f elf64 arch/x86_64/isr_stubs.asm -o build/isr_stubs.o
-	nasm -f elf64 kernel/system/includes/asm/syscalls-asm.s -o build/syscalls-asm.o
+	nasm -f elf64 arch/x86_64/includes/asm/isr_stubs.asm -o build/isr_stubs.o
 	
 # After much research, i've concluded on this linking order because it looks much better than the hellish alternative i initially had
 	@echo "$(CYAN)=-=-=-=-=-=-=-=-=-=-=-=-=-=-$(NC)"
@@ -143,10 +141,7 @@ build/kernel.elf:
 		build/pit.o\
 		build/pci.o\
 		build/ehci.o\
-		build/limits.o\
-		build/syscalls-asm.o\
-		build/syscalls.o
-
+		build/limits.o 
 
 	@echo "$(MAGENTA)Stripping debug info...$(NC)"
 	objcopy --strip-debug build/kernel.elf
@@ -169,18 +164,18 @@ build/uefi-usb.img: kernel
 	echo "BOOTX64.EFI" >> build/usb_root/startup.nsh
 	@echo "$(CYAN)=-=-=-=-=-=-=-=-=-=-=-=-=-=-$(NC)"
 	@echo "$(YELLOW)Creating FAT32 image...$(NC)"
-	dd if=/dev/zero of=build/VNiX-uefi_0.10-pre.img bs=1080K count=64
-	mkfs.fat -F 32 build/VNiX-uefi_0.10-pre.img 2>/dev/null || sudo mkfs.fat -F 32 build/VNiX-uefi_0.10-pre.img
+	dd if=/dev/zero of=build/VNiX-uefi_0.10.05.img bs=1080K count=64
+	mkfs.fat -F 32 build/VNiX-uefi_0.10.05.img 2>/dev/null || sudo mkfs.fat -F 32 build/VNiX-uefi_0.10.05.img
 
 # I decided to add a little interactive box because why not?
 	@echo "$(CYAN)=-=-=-=-=-=-=-=-=-=-=-=-=-=-$(NC)"
 	@echo "$(GREEN)Copying files to image...$(NC)"
-	mcopy -i build/VNiX-uefi_0.10-pre.img -s build/usb_root/* ::
+	mcopy -i build/VNiX-uefi_0.10.05.img -s build/usb_root/* ::
 	@echo ""
-	@echo "$(MAGENTA)IMAGE CREATED at: build/VNiX-uefi_0.10-pre.img$(NC)"
+	@echo "$(MAGENTA)IMAGE CREATED at: build/VNiX-uefi_0.10.05.img$(NC)"
 	@echo ""
 	@echo "$(YELLOW)TO WRITE TO USB DRIVE:$(NC)"
-	@echo "sudo dd if=build/VNiX-uefi_0.10-pre.img of=/dev/sdX bs=4M status=progress"
+	@echo "sudo dd if=build/VNiX-uefi_0.10.05.img of=/dev/sdX bs=4M status=progress"
 	@echo "Or use a tool like balenaEtcher or Rufus to write the image onto a USB drive."
 	@echo ""
 	@echo "Replace /dev/sdX with your USB device (e.g: /dev/sdb)"
@@ -204,8 +199,10 @@ run:
 		-bios boot/Assets/ovmf/OVMF.fd \
 		-usb \
     	-device usb-ehci,id=ehci \
-		-drive file=build/VNiX-uefi_0.10-pre.img,format=raw \
-		-serial stdio
+		-drive file=build/VNiX-uefi_0.10.05.img,format=raw \
+		-serial stdio \
+		-no-shutdown \
+		-no-reboot
 
 clean:
 	@echo "$(CYAN)=-=-=-=-=-=-=-=-=-=-=-=-=-=-$(NC)"

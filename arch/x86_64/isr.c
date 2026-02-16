@@ -66,7 +66,7 @@ void ISR_Initialize() {
         }
     }
 
-    LOG_INFO("ISR initialized successfully\n");
+    LOG_OK("ISR initialized successfully\n");
     SERIAL(Info, ISR_Initialize, "ISR initialized successfully\n");
 }
 

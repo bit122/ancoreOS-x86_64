@@ -39,7 +39,7 @@
 #include <stdlib.h>
 #include "includes/pci.h"
 #include "arch/x86_64/includes/io.h"
-#include "kernel/storage/includes/sata.h"
+#include "drivers/storage/includes/sata.h"
 #include "kernel/time/includes/time.h"
 #include "tools/includes/log-info.h"
 #include "mm/includes/vmm.h"

@@ -201,7 +201,7 @@ void shell_main(void) {
     char c;
     
     printf("╔════════════════════════════════════════╗\n");
-    printf("║   VNiX Interactive Shell v1.1          ║\n");
+    printf("║   VNiX Interactive Shell v1.2          ║\n");
     printf("║   Type 'help' for available commands   ║\n");
     printf("╚════════════════════════════════════════╝\n\n");
     

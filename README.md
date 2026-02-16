@@ -28,10 +28,10 @@ The required dependencies are as follows:
 Note: The method of installing these packages may differ by distribution and operating system. Please refer to the documentation for your distribution and/or OS.
 
 ---
-![A picture of VNiX post-startup, version 0.10-pre](boot/Assets/screenshot.png)
+![A picture of VNiX post-startup, version 0.10.05](boot/Assets/screenshot.png)
 
 
-A picture of VNiX post-startup, version 0.10-pre
+A picture of VNiX post-startup, version 0.10.05
 ---
 ## Directory Structure:
 

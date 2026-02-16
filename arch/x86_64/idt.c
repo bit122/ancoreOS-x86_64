@@ -103,7 +103,7 @@ void IDT_Initialize() {
 
     if (current.Ptr == (uint64_t)g_IDTDescriptor.Ptr &&
         current.Limit == g_IDTDescriptor.Limit) {
-        LOG_INFO("IDT initialized successfully\n");
+        LOG_OK("IDT initialized successfully\n");
         SERIAL(Info, IDT_Initialize, "IDT initialized successfully\n");
         
     } else {

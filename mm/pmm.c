@@ -90,7 +90,7 @@ struct limine_memmap_entry **entries = response->entries;
         }
     }
 
-    LOG_INFO("PMM initialized successfully\n");
+    LOG_OK("PMM initialized successfully\n");
     SERIAL(Info, pmm_init, "PMM initialized successfully\n");
 }
 

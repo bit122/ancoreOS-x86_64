@@ -71,7 +71,7 @@ void vmm_init(void) {
     }
     
     kernel_pml4 = (uint64_t *)phys_to_virt(cr3);
-    LOG_INFO("VMM initialized successfully\n");
+    LOG_OK("VMM initialized successfully\n");
     SERIAL(Info, vmm_init, "VMM initialized successfully\n");
 }
 

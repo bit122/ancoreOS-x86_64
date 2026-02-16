@@ -92,7 +92,7 @@ void APIC_Initialize(void) {
     cr4 |= CR4_APIC_BIT;  // enable APIC (bit 9)
     WriteCR4(cr4);
     
-    LOG_INFO("APIC enabled in CR4\n");
+    LOG_OK("APIC enabled in CR4\n");
     SERIAL(Info, APIC_Initialize, "APIC enabled in CR4\n");
     
     // get APIC base address from MSR
@@ -102,14 +102,14 @@ void APIC_Initialize(void) {
     
         eax |= IA32_APIC_BASE_MSR_ENABLE;
         cpuSetMSR(IA32_APIC_BASE_MSR, eax, edx);
-        LOG_INFO("Enabled APIC in MSR\n");
+        LOG_OK("Enabled APIC in MSR\n");
         SERIAL(Info, APIC_Initialize, "Enabled APIC in MSR\n");
     }
     
     // verify APIC is enabled
     cpuGetMSR(IA32_APIC_BASE_MSR, &eax, &edx);
     if (eax & IA32_APIC_BASE_MSR_ENABLE) {
-        LOG_INFO( "APIC enabled and verified in MSR\n");
+        LOG_OK( "APIC enabled and verified in MSR\n");
         SERIAL(Info, APIC_Initialize, "APIC enabled and verified in MSR\n");
     } 
     else {
@@ -119,7 +119,7 @@ void APIC_Initialize(void) {
     
     // initialize spurious interrupt vector
     APIC_Write(APIC_SVR, APIC_Read(APIC_SVR) | 0x100 | 0xFF);
-    LOG_INFO("APIC initialized successfully\n");
+    LOG_OK("APIC initialized successfully\n");
     SERIAL(Info, APIC_Initialize, "APIC initialized successfully\n");
 
 }

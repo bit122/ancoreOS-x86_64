@@ -39,7 +39,8 @@
 extern struct flanterm_context *global_flanterm;
 
 const char* result_str[ResultCount] = {
-    [Info]  = "",
+    [Ok]    = "OK: ",
+    [Info]  = "INFO: ",
     [Warn]  = "WARN: ",
     [Fatal] = "FATAL: ",
 };

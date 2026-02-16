@@ -101,7 +101,7 @@ void enable_interrupts(void) {
     __asm__ volatile ("sti");
     
     if (are_interrupts_enabled()) {
-        LOG_INFO("Successfully enabled interrupts\n");
+        LOG_OK("Successfully enabled interrupts\n");
         SERIAL(Info, enable_interrupts, "Successfully enabled interrupts\n");
     } else {
         LOG_FATAL("Failed to enable interrupts\n");
@@ -126,7 +126,7 @@ void disable_interrupts(void) {
     __asm__ volatile ("cli");
     
     if (!are_interrupts_enabled()) {
-        LOG_INFO("Successfully disabled interrupts\n");
+        LOG_OK("Successfully disabled interrupts\n");
         SERIAL(Info, disable_interrupts, "Successfully enabled interrupts\n");
     } else {
         LOG_FATAL("Failed to disable interrupts\n");
