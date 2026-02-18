@@ -24,6 +24,7 @@ The required dependencies are as follows:
 - QEMU-Full
 - Clang
 - Parted
+- NASM 
 
 Note: The method of installing these packages may differ by distribution and operating system. Please refer to the documentation for your distribution and/or OS.
 
