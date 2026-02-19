@@ -191,6 +191,7 @@ void kernel_main(void) {
     enable_interrupts();
     start_pci_enumeration();
     shell_main();
+    
 
 
     while (1);
