@@ -190,6 +190,9 @@ build/uefi-usb.img: kernel
 	@echo "Alternatively, you can run 'make run' to test the UEFI raw image in Qemu."
 	@echo "===================================================================="
 	@echo "Note: this image will NOT work for Non-UEFI/Legacy BIOS systems."
+	qemu-img create -f qcow2 vnix.qcow2 10G
+	@echo "===================================================================="
+	@echo "created 10GB qcow2 hdd image"
 	@echo ""
 
 run:
@@ -202,7 +205,9 @@ run:
 		-drive file=build/VNiX-uefi_0.10.05.img,format=raw \
 		-serial stdio \
 		-no-shutdown \
-		-no-reboot
+		-no-reboot \
+		-accel kvm \
+		-drive file=vnix.qcow2,format=qcow2,index=1
 
 clean:
 	@echo "$(CYAN)=-=-=-=-=-=-=-=-=-=-=-=-=-=-$(NC)"
